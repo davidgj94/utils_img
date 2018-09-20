@@ -1,4 +1,4 @@
-function mask = readPoints(image_path, mask_name, mask_points)
+function mask_points = readPoints(image_path, mask_name, mask_points)
 %readPoints   Read manually-defined points from image
 %   POINTS = READPOINTS(IMAGE) displays the image in the current figure,
 %   then records the position of each click of button 1 of the mouse in the
@@ -9,32 +9,22 @@ function mask = readPoints(image_path, mask_name, mask_points)
 %   POINTS = READPOINTS(IMAGE, N) reads up to N points only.
 
 image = imread(image_path);
-[nr, nc, ~] = size(image);
-sz = [nr, nc];
 imshow(image);     % display image
 xold = 0;
 yold = 0;
 hold on;           % and keep it there while we plot
 
 if nargin < 3
-    mask_points = [];
+    mask_points = struct();
+    k= 0;
 elseif nargin == 3
-    resume_session(mask_points, sz);
+    resume_session(mask_points);
+    k = length(mask_points);
 end
 
 while 1
     
     [xi, yi, but] = ginput(1);      % get a point
-%     if but==105                  % stop if not button i
-%         hold off
-%         mask = imdilate(mask, ones(3, 3));
-%         figure
-%         imshow(blend_img(image, mask, 0.6));
-%         save(strcat('labels_plataforma_lines/', mask_name), 'mask')
-%         break
-%     end
-    
-    disp(but)
     
     if ~isempty(xi) && ~isempty(yi)
         x = xi;
@@ -45,9 +35,6 @@ while 1
         save(strcat('labels_plataforma_lines/', mask_name), 'mask_points')
     elseif but==105 % i salir
         hold off
-%         mask = imdilate(mask, ones(3, 3));
-%         figure
-%         imshow(blend_img(image, mask, 0.6));
         save(strcat('labels_plataforma_lines/', mask_name), 'mask_points')
         break
     elseif but==111 % o desfijar punto
@@ -67,10 +54,9 @@ while 1
         axis([x-width/2 x+width/2 y-height/2 y+height/2]);
         
         if xold
-            ind_old = sub2ind(sz, round(yold), round(xold));
-            ind_new = sub2ind(sz, round(y), round(x));
-            mask_points = [mask_points; [ind_old ind_new]];
-%             mask = draw_line_mask(mask, [xold, yold], [x, y]);
+            k = k + 1;
+            mask_points(k).point1 = [xold yold];
+            mask_points(k).point2 = [x y];
             plot([xold x], [yold y], 'go-');  % draw as we go
         else
             plot(x, y, 'go');         % first point on its own
@@ -80,52 +66,19 @@ while 1
         yold = y;
         
     end
-        
-    
-    
-%     if but==116 || but==121 || but==117 || but==111
-%         
-%         disp('entro')
-%         
-%         if but==111
-%             xold = 0;
-%             yold = 0;
-%         else
-%             ax = axis; width=ax(2)-ax(1); height=ax(4)-ax(3);
-%             axis([x-width/2 x+width/2 y-height/2 y+height/2]);
-%         end
-%         
-%         if but==116 % t
-%             disp('entro t')
-%             zoom(2);
-%         elseif but==121 % y
-%             zoom(1/2);    
-%         elseif but==117% u
-%             
-%             if xold
-%                 mask = draw_line_mask(mask, [xold, yold], [x, y]);
-%                 plot([xold x], [yold y], 'go-');  % draw as we go
-%             else
-%                 plot(x, y, 'go');         % first point on its own
-%             end
-%             
-%             xold = x;
-%             yold = y;
-%             
-%         end
-%        
-%     end
     
 end
 
 end
 
-function [] = resume_session(mask_points, sz)
-nlines = size(mask_points, 1);
+function [] = resume_session(mask_points)
+nlines = length(mask_points);
 for i=1:nlines
-    [y1, x1] = ind2sub(sz, mask_points(i,1));
-    [y2, x2] = ind2sub(sz, mask_points(i,2));
-    plot([x1 x2], [y1 y2], 'go-');  % draw as we go
+    x1 = mask_points(i).point1(1);
+    y1 = mask_points(i).point1(2);
+    x2 = mask_points(i).point2(1);
+    y2 = mask_points(i).point2(2);
+    plot([x1 x2], [y1 y2], 'go-');
 end
 end
 
