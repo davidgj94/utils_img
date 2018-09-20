@@ -12,7 +12,8 @@ for q = 1:length(mat)
     end
     mask_png = zeros(size(mask));
     mask_png(logical(mask)) = 255;
-    imwrite(uint8(mask_png), fullfile('png', strcat(mat(q).name, '.png')));
+    [~,mask_name,~] = fileparts(mat(q).name);
+    imwrite(uint8(mask_png), fullfile('png', strcat(mask_name, '.png')));
 end
 
 
