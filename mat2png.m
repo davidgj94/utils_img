@@ -11,7 +11,7 @@ for q = 1:length(mat)
         mask = draw_line_mask(mask, mask_points(i).point1, mask_points(i).point2);  
     end
     mask_png = zeros(size(mask));
-    mask_png(logical(mask)) = 255;
+    mask_png(logical(mask)) = 1;
     [~,mask_name,~] = fileparts(mat(q).name);
     imwrite(uint8(mask_png), fullfile('png', strcat(mask_name, '.png')));
 end
