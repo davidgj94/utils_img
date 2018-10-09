@@ -5,13 +5,23 @@ json_files = dir(json_dir);
 for q = 3:length(json_files) 
     json_text = fileread(strcat(json_dir, json_files(q).name));
     json = jsondecode(json_text);
-    nlines = length(json.shapes);
-    mask_points = struct();
-    for i=1:nlines
+    nobjects = length(json.shapes);
+    mask_points = struct(); % puntos de lineas
+    road_points = struct();
+    i_line = 0;
+    i_road = 0;
+    for i=1:nobjects
         points = json.shapes(i).points;
-        mask_points(i).point1 = points(1,:);
-        mask_points(i).point2 = points(2,:);
+        if json.shapes(i).label == "line"
+            i_line = i_line + 1;
+            mask_points(i_line).point1 = points(1,:);
+            mask_points(i_line).point2 = points(2,:);
+        else
+            i_road = i_road + 1;
+            road_points(i_road).points = points;
+        end
+        
     end
     [~,name,~] = fileparts(json_files(q).name);
-    save(strcat(save_dir, name), 'mask_points');
+    save(strcat(save_dir, name), 'mask_points', 'road_points');
 end
