@@ -7,24 +7,25 @@ width = 4096;
 mat = dir(strcat(mat_dir,'*.mat')); 
 for q = 1:length(mat)
     
+    mask_png = zeros(height, width);
     load(fullfile(mat_dir,mat(q).name));
     
     mask_lines = zeros(height, width);
     nlines = length(mask_points);
     for i=1:nlines
-        mask_lines = draw_line_mask(mask_lines, mask_points(i).point1, mask_points(i).point2);  
+        mask_lines = draw_line_mask(mask_lines, check_point(mask_points(i).point1), check_point(mask_points(i).point2));  
     end
     mask_lines = imdilate(mask_lines, strel('square',5));
-    
-    mask_roads = zeros(height, width);
-    nroads = length(road_points);
-    for i=1:nroads
-        mask_roads = draw_poly_mask(mask_roads, road_points(i).points);  
-    end
-    
-    mask_png = zeros(height, width);
     mask_png(logical(mask_lines)) = 1;
-    mask_png(logical(mask_roads)) = 2;
+    
+    if isfield(road_points(1),'points')
+        mask_roads = zeros(height, width);
+        nroads = length(road_points);
+        for i=1:nroads
+            mask_roads = draw_poly_mask(mask_roads, road_points(i).points);
+        end
+        mask_png(logical(mask_roads)) = 2;
+    end
     
     [~,mask_name,~] = fileparts(mat(q).name);
     imwrite(uint8(mask_png), fullfile(save_dir, strcat(mask_name, '.png')));
@@ -60,12 +61,29 @@ n_vpoints = length(vpoints);
 xv = zeros(1,n_vpoints);
 yv = zeros(1,n_vpoints);
 for i=1:n_vpoints
-    point = vpoints(i,:);
+    point = check_point(vpoints(i,:));
     xv(i) = point(1);
     yv(i) = point(2);
 end
 
 new_mask = inpolygon(X,Y,xv,yv);
 
+end
 
+function [new_point] = check_point(point)
+
+    new_point = point;
+    
+    if new_point(1) > 4096
+        new_point(1) = 4096;
+    elseif new_point(1) < 1
+        new_point(1) = 1;
+    end
+    
+    if new_point(2) > 2160
+        new_point(2) = 2160;
+    elseif new_point(2) < 1
+        new_point(2) = 1;
+    end
+    
 end

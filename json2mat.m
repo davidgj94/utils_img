@@ -16,7 +16,7 @@ for q = 3:length(json_files)
             i_line = i_line + 1;
             mask_points(i_line).point1 = points(1,:);
             mask_points(i_line).point2 = points(2,:);
-        else
+        elseif json.shapes(i).label == "road"
             i_road = i_road + 1;
             road_points(i_road).points = points;
         end
