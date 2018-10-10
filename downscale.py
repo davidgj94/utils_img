@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 import os.path
 import pdb
 from math import ceil
+import shutil
 
 def make_parser():
     p = ArgumentParser()
@@ -31,6 +32,11 @@ if __name__ == "__main__":
     
     parser = make_parser()
     args = parser.parse_args()
+
+    if os.path.exists(args.save_path):
+        shutil.rmtree(args.save_path, ignore_errors=True)
+    os.makedirs(args.save_path)
+
     path = Path(args.path)
 
     for glob in path.glob('*'):

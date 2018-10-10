@@ -14,11 +14,11 @@ for q = 3:length(json_files)
         points = json.shapes(i).points;
         if json.shapes(i).label == "line"
             i_line = i_line + 1;
-            mask_points(i_line).point1 = points(1,:);
-            mask_points(i_line).point2 = points(2,:);
+            mask_points(i_line).point1 = points(1,:) + 1;
+            mask_points(i_line).point2 = points(2,:) + 1;
         elseif json.shapes(i).label == "road"
             i_road = i_road + 1;
-            road_points(i_road).points = points;
+            road_points(i_road).points = points + 1;
         end
         
     end

@@ -15,7 +15,7 @@ for q = 1:length(mat)
     for i=1:nlines
         mask_lines = draw_line_mask(mask_lines, check_point(mask_points(i).point1), check_point(mask_points(i).point2));  
     end
-    mask_lines = imdilate(mask_lines, strel('square',10));
+    mask_lines = imdilate(mask_lines, strel('square',20));
     mask_png(logical(mask_lines)) = 1;
     
     if isfield(road_points(1),'points')
